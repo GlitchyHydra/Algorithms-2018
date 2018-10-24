@@ -2,6 +2,8 @@
 
 package lesson1
 
+import java.io.File
+
 /**
  * Сортировка времён
  *
@@ -31,7 +33,30 @@ package lesson1
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    /**
+     * labor intensity = O(n)
+     * memory intensity = O(n)
+     */
+    val listOfTime = File(inputName).readLines().map { it -> it.split(':') }.map { it ->
+        it.reversed().foldIndexed(0)
+        { index, prev, elem -> Math.pow(60.0, index.toDouble()).toInt() * elem.toInt() + prev }
+    }.toIntArray()
+    insertionSort(listOfTime)
+    val outputFile = File(outputName).bufferedWriter()
+    for (i in 0..listOfTime.lastIndex) {
+        outputFile.write("${toRightFormat(listOfTime[i] / 3600)}:" +
+                "${toRightFormat((listOfTime[i] / 60) % 60)}:" +
+                toRightFormat(listOfTime[i] % 60))
+        outputFile.newLine()
+    }
+    outputFile.close()
+}
+
+fun toRightFormat(partOfTime: Int): String {
+    if (partOfTime in 0..9) {
+        return "0$partOfTime"
+    }
+    return "$partOfTime"
 }
 
 /**
@@ -64,6 +89,7 @@ fun sortAddresses(inputName: String, outputName: String) {
     TODO()
 }
 
+
 /**
  * Сортировка температур
  *
@@ -95,7 +121,13 @@ fun sortAddresses(inputName: String, outputName: String) {
  * 121.3
  */
 fun sortTemperatures(inputName: String, outputName: String) {
-    TODO()
+    /**
+     * labor intensity = O(nlogn)
+     * memory intensity = O(n)
+     */
+    val arrayOfTemper = File(inputName).readLines().map { it -> it.toDouble() }.toDoubleArray()
+    mergerSort(arrayOfTemper)
+    File(outputName).writeText(arrayOfTemper.joinToString(separator = "\n"))
 }
 
 /**
@@ -128,7 +160,13 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    /**
+     * labor intensity = O(n + m)
+     * memory intensity = O(n)
+     */
+    val sequenceArray = File(inputName).readLines().map { it -> it.toInt() }.toIntArray()
+    val sortedSeqArr = countingSortForSeq(sequenceArray, sequenceArray.max()!!)
+    File(outputName).writeText(sortedSeqArr.joinToString(separator = "\n"))
 }
 
 /**
@@ -146,6 +184,22 @@ fun sortSequence(inputName: String, outputName: String) {
  * Результат: second = [1 3 4 9 9 13 15 20 23 28]
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
-    TODO()
+    /**
+     * labor intensity = O(nlogn)
+     * memory intensity = O(n)
+     */
+    var firstIndex = 0
+    var secondIndex = first.size
+    var index = 0
+    while (firstIndex < first.size && secondIndex < second.size) {
+        if (first[firstIndex] < second[secondIndex]!!)
+            second[index++] = first[firstIndex++]
+        else
+            second[index++] = second[secondIndex++]
+    }
+    while (firstIndex < first.size)
+        second[index++] = first[firstIndex++]
+    while (secondIndex < second.size)
+        second[index++] = second[secondIndex++]
 }
 

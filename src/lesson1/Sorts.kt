@@ -1,5 +1,7 @@
 package lesson1
 
+import lesson3.CheckableSortedSet
+import lesson3.KtBinaryTree
 import java.util.*
 
 private val random = Random(Calendar.getInstance().timeInMillis)
@@ -34,6 +36,20 @@ fun insertionSort(elements: IntArray) {
     }
 }
 
+private fun merge(elements: DoubleArray, begin: Int, middle: Int, end: Int) {
+    val left = Arrays.copyOfRange(elements, begin, middle)
+    val right = Arrays.copyOfRange(elements, middle, end)
+    var li = 0
+    var ri = 0
+    for (i in begin until end) {
+        if (li < left.size && (ri == right.size || left[li] <= right[ri])) {
+            elements[i] = left[li++]
+        } else {
+            elements[i] = right[ri++]
+        }
+    }
+}
+
 private fun merge(elements: IntArray, begin: Int, middle: Int, end: Int) {
     val left = Arrays.copyOfRange(elements, begin, middle)
     val right = Arrays.copyOfRange(elements, middle, end)
@@ -54,6 +70,18 @@ private fun mergeSort(elements: IntArray, begin: Int, end: Int) {
     mergeSort(elements, begin, middle)
     mergeSort(elements, middle, end)
     merge(elements, begin, middle, end)
+}
+
+private fun mergeSort(elements: DoubleArray, begin: Int, end: Int) {
+    if (end - begin <= 1) return
+    val middle = (begin + end) / 2
+    mergeSort(elements, begin, middle)
+    mergeSort(elements, middle, end)
+    merge(elements, begin, middle, end)
+}
+
+fun mergerSort(elements: DoubleArray) {
+    mergeSort(elements, 0, elements.size)
 }
 
 fun mergeSort(elements: IntArray) {
@@ -128,6 +156,7 @@ fun quickSort(elements: IntArray) {
     quickSort(elements, 0, elements.size - 1)
 }
 
+//O(n + m)
 fun countingSort(elements: IntArray, limit: Int): IntArray {
     val count = IntArray(limit + 1)
     for (element in elements) {
@@ -136,10 +165,42 @@ fun countingSort(elements: IntArray, limit: Int): IntArray {
     for (j in 1..limit) {
         count[j] += count[j - 1]
     }
+    //O(m)
     val out = IntArray(elements.size)
     for (j in elements.indices.reversed()) {
         out[count[elements[j]] - 1] = elements[j]
         count[elements[j]]--
     }
+    //O(n)
+    return out
+}
+
+fun countingSortForSeq(elements: IntArray, limit: Int): IntArray {
+    val count = IntArray(limit + 1)
+    for (element in elements) {
+        count[element]++
+    }
+    val max = count.max()
+    var min = 0
+    for (i in 0..limit) {
+        if (max == count[i]) {
+            min = i
+            break
+        }
+    }
+    //O(m)
+    val out = IntArray(elements.size)
+    var index = 0
+    var offset = 0
+    while (index < elements.size) {
+        if (elements[index] == min) {
+            offset++
+        } else out[index - offset] = elements[index]
+        index++
+    }
+    //O(n)
+    for (i in elements.size - max!! until elements.size)
+        out[i] = min
+    //O(n+m)
     return out
 }

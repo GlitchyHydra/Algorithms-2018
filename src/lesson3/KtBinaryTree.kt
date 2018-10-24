@@ -1,6 +1,6 @@
 package lesson3
 
-import java.util.SortedSet
+import java.util.*
 import kotlin.NoSuchElementException
 
 // Attention: comparable supported but comparator is not
@@ -53,9 +53,74 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     /**
      * Удаление элемента в дереве
      * Средняя
+     * labor intesity = O(nlogn)
+     * memory intesity = O(n)
      */
     override fun remove(element: T): Boolean {
-        TODO()
+        var currentNode = root ?: return false
+        var parentNode = root ?: return false
+        var onRight = true
+        while (currentNode.value != element) {
+            parentNode = currentNode
+            if (element > currentNode.value) {
+                currentNode = currentNode.right ?: return false
+                onRight = true
+            } else if (element < currentNode.value) {
+                currentNode = currentNode.left ?: return false
+                onRight = false
+            }
+        }
+        if (currentNode.left == null && currentNode.right == null) {
+            when {
+                currentNode == root -> root = null
+                onRight -> parentNode.right = null
+                else -> parentNode.left = null
+            }
+        } else if (currentNode.left == null) {
+            if (currentNode == root) root = currentNode.right
+            else {
+                val right = currentNode.right ?: return false
+                setNode(onRight, parentNode, right)
+            }
+        } else if (currentNode.right == null) {
+            if (currentNode == root) root = currentNode.left
+            else {
+                val left = currentNode.left ?: return false
+                setNode(onRight, parentNode, left)
+            }
+        } else {
+            var minNode = currentNode.right ?: return false
+            var parentMinNode = currentNode.right ?: return false
+            while (minNode.left != null) {
+                parentMinNode = minNode
+                val left = minNode.left ?: return false
+                minNode = left
+            }
+            when {
+                currentNode == root -> {
+                    parentMinNode.left = minNode.right
+                    root = minNode
+                    minNode.left = currentNode.left
+                    minNode.right = currentNode.right
+                }
+                parentMinNode == minNode -> setNode(onRight, parentNode, minNode)
+                else -> {
+                    parentMinNode.left = minNode.right
+                    minNode.right = currentNode.right
+                    minNode.left = currentNode.left
+                    setNode(onRight, parentNode, minNode)
+                }
+            }
+            minNode.left = currentNode.left
+        }
+        size--
+        return true
+    }
+
+    private fun setNode(onRight: Boolean, parentNode: Node<T>, currentNode: Node<T>) {
+        if (onRight)
+            parentNode.right = currentNode
+        else parentNode.left = currentNode
     }
 
     override operator fun contains(element: T): Boolean {
@@ -82,9 +147,29 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         /**
          * Поиск следующего элемента
          * Средняя
+         * labor intesity = O(n)
+         * memory intesity = O(n)
          */
         private fun findNext(): Node<T>? {
-            TODO()
+            val currentNode = current ?: return find(first())
+            if (currentNode.value == last()) return null
+            if (currentNode.right != null) {
+                var successor = currentNode.right ?: throw IllegalArgumentException()
+                while (successor.left != null) {
+                    successor = successor.left ?: return successor
+                }
+                return successor
+            } else {
+                var successor = root ?: throw IllegalArgumentException()
+                var ancestor = root ?: throw IllegalArgumentException()
+                while (ancestor != currentNode) {
+                    if (currentNode.value < ancestor.value) {
+                        successor = ancestor
+                        ancestor = ancestor.left ?: throw IllegalArgumentException()
+                    } else ancestor = ancestor.right ?: throw IllegalArgumentException()
+                }
+                return successor
+            }
         }
 
         override fun hasNext(): Boolean = findNext() != null
@@ -97,9 +182,14 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         /**
          * Удаление следующего элемента
          * Сложная
+         * labor and memory same as remove in tree
          */
         override fun remove() {
-            TODO()
+            val cur = current
+            current = findNext()
+            if (cur != null)
+                remove(cur.value)
+            else return
         }
     }
 
@@ -110,25 +200,72 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     /**
      * Для этой задачи нет тестов (есть только заготовка subSetTest), но её тоже можно решить и их написать
      * Очень сложная
+     * labor intesity = O(n + m)
+     * memory intesity = O(n)
      */
     override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
-        TODO()
+        val toElementNotInTree = !this.contains(toElement)
+        val fromElementNotInTree = !this.contains(fromElement)
+        if (toElementNotInTree) this.add(toElement)
+        if (fromElementNotInTree) this.add(fromElement)
+        val setOfMax = mutableSetOf<T>()
+        val iter = iterator()
+        var element: T = iter.next()
+        while (element != fromElement) {
+            element = iter.next()
+        }
+        while (element != toElement) {
+            setOfMax.add(element)
+            element = iter.next()
+        }
+        if (toElementNotInTree) this.remove(toElement)
+        if (fromElementNotInTree) this.remove(fromElement)
+        return setOfMax.toSortedSet()
     }
 
     /**
      * Найти множество всех элементов меньше заданного
      * Сложная
+     * labor intesity = O(n)
+     * memory intesity = O(n)
      */
     override fun headSet(toElement: T): SortedSet<T> {
-        TODO()
+        val flag = !this.contains(toElement)
+        if (flag) this.add(toElement)
+        val setOfMax = mutableSetOf<T>()
+        val iter = iterator()
+        var element: T = iter.next()
+        while (element != toElement) {
+            if (!iter.hasNext()) throw IllegalArgumentException()
+            setOfMax.add(element)
+            element = iter.next()
+        }
+        if (flag) this.remove(toElement)
+        return setOfMax.toSortedSet()
     }
 
     /**
      * Найти множество всех элементов больше или равных заданного
+     * labor intesity = O(n)
+     * memory intesity = O(n)
      * Сложная
      */
     override fun tailSet(fromElement: T): SortedSet<T> {
-        TODO()
+        val flag = !this.contains(fromElement)
+        if (flag) this.add(fromElement)
+        val setOfMax = mutableSetOf<T>()
+        val iter = this.iterator()
+        var element: T = iter.next()
+        while (element != fromElement) {
+            element = iter.next()
+        }
+        while (element != last()) {
+            setOfMax.add(element)
+            element = iter.next()
+        }
+        if (flag) this.remove(fromElement)
+        setOfMax.add(element)
+        return setOfMax.toSortedSet()
     }
 
     override fun first(): T {
