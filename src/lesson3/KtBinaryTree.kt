@@ -201,27 +201,10 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
      * Для этой задачи нет тестов (есть только заготовка subSetTest), но её тоже можно решить и их написать
      * Очень сложная
      * labor intesity = O(n + m)
-     * memory intesity = O(n)
+     * memory intesity = O(n + m)
      */
-    override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
-        val toElementNotInTree = !this.contains(toElement)
-        val fromElementNotInTree = !this.contains(fromElement)
-        if (toElementNotInTree) this.add(toElement)
-        if (fromElementNotInTree) this.add(fromElement)
-        val setOfMax = mutableSetOf<T>()
-        val iter = iterator()
-        var element: T = iter.next()
-        while (element != fromElement) {
-            element = iter.next()
-        }
-        while (element != toElement) {
-            setOfMax.add(element)
-            element = iter.next()
-        }
-        if (toElementNotInTree) this.remove(toElement)
-        if (fromElementNotInTree) this.remove(fromElement)
-        return setOfMax.toSortedSet()
-    }
+    override fun subSet(fromElement: T, toElement: T): SortedSet<T> =
+            tailSet(fromElement).intersect(headSet(toElement)).toSortedSet()
 
     /**
      * Найти множество всех элементов меньше заданного
