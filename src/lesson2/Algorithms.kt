@@ -2,6 +2,7 @@
 
 package lesson2
 
+import lesson3.Trie
 import java.io.File
 
 /**
@@ -116,6 +117,10 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * вернуть ту из них, которая встречается раньше в строке first.
  */
 fun longestCommonSubstring(first: String, second: String): String {
+    /**
+     * labor intensity = O(n^2)
+     * memory intensity = O(n*m)
+     */
     val matrix = Array(first.length + 1) { IntArray(second.length + 1) }
     var max = 0
     var lj = 0
@@ -195,7 +200,12 @@ fun calcPrimesNumber(limit: Int): Int {
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
-    val matrixOfWords = readMatrix(inputName)
+val prefixTree = Trie()
+    words.map { it -> prefixTree.add(it)}
+    println(prefixTree)
+    return mutableSetOf("")
+}
+    /*val matrixOfWords = readMatrix(inputName)
     val width = matrixOfWords.size
     val height = matrixOfWords[0].size
     matrixOfWords.forEach { println(it) }
@@ -243,4 +253,4 @@ fun readMatrix(inputName: String): Array<CharArray> {
         }
     }
     return listOfWord.map { it -> it.toCharArray() }.toTypedArray()
-}
+}*/

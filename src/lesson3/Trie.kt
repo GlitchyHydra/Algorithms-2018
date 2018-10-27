@@ -62,6 +62,35 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
      * Сложная
      */
     override fun iterator(): MutableIterator<String> {
-        TODO()
+        /**
+         * n - char counts
+         * memory intensity = O(n)
+         * m - counts of loops in traverse
+         * labor intensity = O(n^m)
+         */
+        val visitedWords = mutableSetOf<String>()
+        for (element in root.children) {
+            val word = mutableListOf<Char>()
+            word.add(element.key)
+            traverse(element.value, visitedWords, word)
+        }
+        return visitedWords.iterator()
+    }
+
+
+    private fun traverse(trieNode: Node, visitedWords: MutableSet<String>, word: MutableList<Char>) {
+        val checkIfWord = trieNode.children.isEmpty() || trieNode.children.containsKey(0.toChar())
+        val wordInString = word.joinToString(prefix = "", separator = "", postfix = "")
+        if (checkIfWord && !visitedWords.contains(wordInString)) {
+            visitedWords.add(wordInString)
+            word.removeAt(word.lastIndex)
+            return
+        }
+        for (char in trieNode.children) {
+            word.add(char.key)
+            traverse(char.value, visitedWords, word)
+        }
+        word.removeAt(word.lastIndex)
+        return
     }
 }

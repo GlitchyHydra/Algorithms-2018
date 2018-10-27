@@ -91,7 +91,7 @@ class BinaryTreeTest {
 
     private fun testIterator(create: () -> CheckableSortedSet<Int>) {
         val random = Random()
-        for (iteration in 1..100) {
+        for (iteration in 1..10) {
             val list = mutableListOf<Int>()
             for (i in 1..20) {
                 list.add(random.nextInt(100))
