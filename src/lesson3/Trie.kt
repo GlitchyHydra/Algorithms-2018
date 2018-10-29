@@ -64,9 +64,9 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
     override fun iterator(): MutableIterator<String> {
         /**
          * n - char counts
-         * memory intensity = O(n)
+         * time complexity = O(n)
          * m - counts of loops in traverse
-         * labor intensity = O(n^m)
+         * space complexity = O(n * m)
          */
         val visitedWords = mutableSetOf<String>()
         for (element in root.children) {

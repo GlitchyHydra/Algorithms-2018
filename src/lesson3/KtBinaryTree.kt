@@ -7,6 +7,16 @@ import kotlin.NoSuchElementException
 class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSortedSet<T> {
 
     private var root: Node<T>? = null
+    private var isTailTree: Boolean = false
+    private var isHeadTree: Boolean = false
+    private var isSubTree: Boolean = false
+    private var isParent = false
+    private var elem: T? = null
+    private var subElems: Pair<T, T>? = null
+    private var parentTree: KtBinaryTree<T>? = null
+    private var tailChildTrees: TreeMap<T, KtBinaryTree<T>> = TreeMap()
+    private var headChildTrees: TreeMap<T, KtBinaryTree<T>> = TreeMap()
+    private var subChildTrees: HashMap<Pair<T, T>, KtBinaryTree<T>> = HashMap()
 
     override var size = 0
         private set
@@ -18,7 +28,18 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         var right: Node<T>? = null
     }
 
+    private fun checkForRemoveOrAdd(element: T): Boolean {
+        when {
+            isTailTree && element < elem!! -> return false
+            isHeadTree && element > elem!! -> return false
+            isSubTree && element < subElems!!.first && element > subElems!!.second -> return false
+        }
+        return true
+    }
+
     override fun add(element: T): Boolean {
+        if ((isTailTree || isHeadTree || isSubTree) && !checkForRemoveOrAdd(element))
+            return false
         val closest = find(element)
         val comparison = if (closest == null) -1 else element.compareTo(closest.value)
         if (comparison == 0) {
@@ -37,7 +58,23 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
             }
         }
         size++
+        val pt = parentTree
+        if (parentTree != null && !pt!!.contains(element)) {
+            if (!checkForRemoveOrAdd(element))
+                return false
+            parentTree!!.add(element)
+        }
+        if (isParent) {
+            addToChildren(element)
+        }
         return true
+    }
+
+    private fun addToChildren(element: T) {
+        tailChildTrees.filterKeys { key -> element >= key }.map { entry -> entry.value.add(element) }
+        headChildTrees.filterKeys { key -> element < key }.map { entry -> entry.value.add(element) }
+        subChildTrees.filterKeys { key -> element >= key.first && element < key.second }
+                .map { entry -> entry.value.add(element) }
     }
 
     override fun checkInvariant(): Boolean =
@@ -53,10 +90,11 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     /**
      * Удаление элемента в дереве
      * Средняя
-     * labor intesity = O(nlogn)
-     * memory intesity = O(n)
+     * time complexity = O(NlogN)
+     * memory intesity = O(NlogN)
      */
     override fun remove(element: T): Boolean {
+        if (!this.contains(element)) return false
         var currentNode = root ?: return false
         var parentNode = root ?: return false
         var onRight = true
@@ -71,24 +109,28 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
             }
         }
         if (currentNode.left == null && currentNode.right == null) {
+            //if removal point is leaf
             when {
                 currentNode == root -> root = null
                 onRight -> parentNode.right = null
                 else -> parentNode.left = null
             }
         } else if (currentNode.left == null) {
+            //if removal point have only right child
             if (currentNode == root) root = currentNode.right
             else {
                 val right = currentNode.right ?: return false
                 setNode(onRight, parentNode, right)
             }
         } else if (currentNode.right == null) {
+            //if removal point have only left child
             if (currentNode == root) root = currentNode.left
             else {
                 val left = currentNode.left ?: return false
                 setNode(onRight, parentNode, left)
             }
         } else {
+            //worst case - if removal point have both children
             var minNode = currentNode.right ?: return false
             var parentMinNode = currentNode.right ?: return false
             while (minNode.left != null) {
@@ -97,7 +139,12 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
                 minNode = left
             }
             when {
-                currentNode == root -> {
+                currentNode == root && parentMinNode == minNode -> {
+                    val rootLeft = root!!.left
+                    root = minNode
+                    minNode.left = rootLeft
+                }
+                currentNode == root && parentMinNode != minNode -> {
                     parentMinNode.left = minNode.right
                     root = minNode
                     minNode.left = currentNode.left
@@ -113,8 +160,22 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
             }
             minNode.left = currentNode.left
         }
+        if (parentTree != null) {
+            if (!checkForRemoveOrAdd(element))
+                return false
+            parentTree!!.remove(element)
+        }
+        if (isParent)
+            removeFromChildren(element)
         size--
         return true
+    }
+
+    private fun removeFromChildren(element: T) {
+        tailChildTrees.filterKeys { key -> element >= key }.map { entry -> entry.value.remove(element) }
+        headChildTrees.filterKeys { key -> element < key }.map { entry -> entry.value.remove(element) }
+        subChildTrees.filterKeys { key -> element >= key.first && element < key.second }
+                .map { entry -> entry.value.remove(element) }
     }
 
     private fun setNode(onRight: Boolean, parentNode: Node<T>, currentNode: Node<T>) {
@@ -147,10 +208,11 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         /**
          * Поиск следующего элемента
          * Средняя
-         * labor intesity = O(n)
-         * memory intesity = O(n)
+         * time complexity = O(NlognN)
+         * space complexity = O(NlogN)
          */
         private fun findNext(): Node<T>? {
+            if (size == 0) return null
             val currentNode = current ?: return find(first())
             if (currentNode.value == last()) return null
             if (currentNode.right != null) {
@@ -182,7 +244,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         /**
          * Удаление следующего элемента
          * Сложная
-         * labor and memory same as remove in tree
+         * complexity like in remove
          */
         override fun remove() {
             val cur = current
@@ -200,55 +262,77 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     /**
      * Для этой задачи нет тестов (есть только заготовка subSetTest), но её тоже можно решить и их написать
      * Очень сложная
-     * labor intesity = O(n + m)
-     * memory intesity = O(n + m)
+     * time complexity = O(N + M)
+     * memory complexity = O(N + M)
      */
-    override fun subSet(fromElement: T, toElement: T): SortedSet<T> =
-            tailSet(fromElement).intersect(headSet(toElement)).toSortedSet()
+    override fun subSet(fromElement: T, toElement: T): SortedSet<T> {
+        if (subChildTrees.containsKey(Pair(fromElement, toElement)))
+            return subChildTrees[Pair(fromElement, toElement)]!!
+        val subSet = KtBinaryTree<T>()
+        subSet.addAll(tailSet(fromElement).intersect(headSet(toElement)))
+        subSet.parentTree = this
+        subSet.subElems = Pair(fromElement, toElement)
+        subSet.isSubTree = true
+        this.isParent = true
+        this.subChildTrees[Pair(fromElement, toElement)] = subSet
+        return subSet
+    }
 
     /**
      * Найти множество всех элементов меньше заданного
      * Сложная
-     * labor intesity = O(n)
-     * memory intesity = O(n)
+     * time complexity= O(N + M)
+     * space complexity = O(M)
      */
     override fun headSet(toElement: T): SortedSet<T> {
-        val flag = !this.contains(toElement)
-        if (flag) this.add(toElement)
-        val setOfMax = mutableSetOf<T>()
+        if (headChildTrees.containsKey(toElement)) return headChildTrees[toElement]!!
+        //O(N)
+        val headSet = KtBinaryTree<T>()
+        headSet.parentTree = this
+        headSet.elem = toElement
         val iter = iterator()
         var element: T = iter.next()
-        while (element != toElement) {
-            if (!iter.hasNext()) throw IllegalArgumentException()
-            setOfMax.add(element)
+        while (element < toElement) {
+            headSet.add(element)
+            if (!iter.hasNext()) break
             element = iter.next()
         }
-        if (flag) this.remove(toElement)
-        return setOfMax.toSortedSet()
+        //O(M)
+        headSet.isHeadTree = true
+        this.isParent = true
+        this.headChildTrees[toElement] = headSet
+        return headSet
     }
 
     /**
      * Найти множество всех элементов больше или равных заданного
-     * labor intesity = O(n)
-     * memory intesity = O(n)
+     * time complexity = O(N + M)
+     * space intensity = O(M)
      * Сложная
      */
     override fun tailSet(fromElement: T): SortedSet<T> {
-        val flag = !this.contains(fromElement)
-        if (flag) this.add(fromElement)
-        val setOfMax = mutableSetOf<T>()
+        if (tailChildTrees.containsKey(fromElement)) return tailChildTrees[fromElement]!!
+        //O(N)
+        val tailSet = KtBinaryTree<T>()
+        tailSet.parentTree = this
+        tailSet.elem = fromElement
         val iter = this.iterator()
         var element: T = iter.next()
-        while (element != fromElement) {
+        if (fromElement > first()) {
+            while (iter.hasNext() && element != fromElement) {
+                element = iter.next()
+            }
+        }
+        while (element <= last()) {
+            tailSet.add(element)
+            if (!iter.hasNext()) break
             element = iter.next()
         }
-        while (element != last()) {
-            setOfMax.add(element)
-            element = iter.next()
-        }
-        if (flag) this.remove(fromElement)
-        setOfMax.add(element)
-        return setOfMax.toSortedSet()
+        //O(M)
+        tailSet.isTailTree = true
+        this.isParent = true
+        this.tailChildTrees[fromElement] = tailSet
+        return tailSet
     }
 
     override fun first(): T {

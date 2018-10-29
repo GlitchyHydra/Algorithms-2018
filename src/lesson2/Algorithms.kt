@@ -2,7 +2,6 @@
 
 package lesson2
 
-import lesson3.Trie
 import java.io.File
 
 /**
@@ -30,8 +29,18 @@ import java.io.File
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
-    val price = File(inputName).readLines().map { it -> it.toInt() }.toIntArray()//O(n)
-    val delta = price.zip(price.copyOfRange(1, price.size)) { el1, el2 -> el2 - el1 }.toIntArray() //O(n + m)
+    /**
+     * time complexity = O(N)
+     * space complexity = O(N)
+     */
+    File(inputName).readLines().map { it ->
+        if (!Regex("""([\d]+)""").matches(it))
+            throw IllegalArgumentException("File format exception")
+    }
+    val price = File(inputName).readLines().map { it -> it.toInt() }.toIntArray()
+    //O(N)
+    val delta = price.zip(price.copyOfRange(1, price.size)) { el1, el2 -> el2 - el1 }.toIntArray()
+    //O(N)
     var ans = 0
     var sum = 0
     var li = 0
@@ -50,7 +59,8 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
             p = Pair(fi + 1, li + 2)
         }
         ans = maxOf(ans, sum)
-    }//total O(n + m)
+    }
+    //total O(N)
     return p
 }
 
@@ -101,8 +111,15 @@ fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
  * Х х Х
  */
 fun josephTask(menNumber: Int, choiceInterval: Int): Int {
-    return if (menNumber == 1) 1 // O(1)
-    else (josephTask(menNumber - 1, choiceInterval) + choiceInterval - 1) % menNumber + 1
+    /**
+     * time complexity = O(N)
+     * space comlexity = O(N)
+     */
+    var survivor = 0
+    for (i in 2..menNumber) {
+        survivor = (choiceInterval + survivor) % i
+    }
+    return survivor + 1
 }
 
 /**
@@ -118,10 +135,12 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  */
 fun longestCommonSubstring(first: String, second: String): String {
     /**
-     * labor intensity = O(n^2)
-     * memory intensity = O(n*m)
+     * k = word length
+     * time complexity = O(n * m + k)
+     * space complexity = O(n * m + k)
      */
     val matrix = Array(first.length + 1) { IntArray(second.length + 1) }
+    //O(n * m)
     var max = 0
     var lj = 0
     var li = 0
@@ -157,18 +176,25 @@ fun longestCommonSubstring(first: String, second: String): String {
  * Единица простым числом не считается.
  */
 fun calcPrimesNumber(limit: Int): Int {
+    /**
+     * time complexity = O(NlogN)
+     * space complexity = O(1)
+     */
     if (limit <= 1) return 0
+    if (limit == 2) return 1
     var count = 0
-    for (i in 2..limit) {
+    for (x in 2..limit) {
         var isPrime = true
-        for (j in 2 until i) {
-            if (i % j == 0) {
+        //time complexity = O(N)
+        for (y in 2..Math.sqrt(x.toDouble()).toInt()) {
+            if (x % y == 0) {
                 isPrime = false
                 break
             }
         }
-        if (isPrime)
+        if (isPrime) {
             count++
+        }
     }
     return count
 }
@@ -199,58 +225,80 @@ fun calcPrimesNumber(limit: Int): Int {
  * В файле буквы разделены пробелами, строки -- переносами строк.
  * Остальные символы ни в файле, ни в словах не допускаются.
  */
+
+class Path {
+    companion object {
+        var path = 1
+    }
+}
+
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
-val prefixTree = Trie()
-    words.map { it -> prefixTree.add(it)}
-    println(prefixTree)
-    return mutableSetOf("")
-}
-    /*val matrixOfWords = readMatrix(inputName)
-    val width = matrixOfWords.size
-    val height = matrixOfWords[0].size
-    matrixOfWords.forEach { println(it) }
-    val offsets = arrayOf(Pair(-1, 0), Pair(-1, -1), Pair(1, 0), Pair(0, 1))
+    /**
+     * k = word length
+     * time complexity = O(n * m + k)
+     * space complexity = O(n * m + k)
+     */
+    val baldaMatrix = File(inputName).readLines()
+            .map { it -> it.replace(" ", "").toCharArray() }.toTypedArray()
+    //O(n)
+    val finnedWords = mutableSetOf<String>()
     for (word in words) {
-        val indexes = findIndex(matrixOfWords, word[0])
-        var i = indexes.first
-        var j = indexes.second
-        if (indexes.first == -1) continue
-        for (k in 1..word.lastIndex) {
-            var flag = false
-            for (offset in offsets) {
-                if (i + offset.first in 1..height && j + offset.second in 1..width) {
-                    if (matrixOfWords[i + offset.first][j + offset.second] == word[k]) {
-                        flag = true
-                        i += offset.first
-                        j += offset.second
-                        break
-                    }
-                }
-            }
-        }
+        if (searchWord(baldaMatrix, word))
+            finnedWords.add(word)
+        Path.path = 1
     }
-    return setOf()
+    return finnedWords
 }
 
-//fun find
-
-fun findIndex(matrix: Array<CharArray>, s: Char): Pair<Int, Int> {
-    for (i in 0 until matrix.size) {
-        for (j in 0 until matrix[0].size) {
-            if (matrix[i][j] == s) return Pair(i, j)
+private fun searchWord(matrixOfWords: Array<CharArray>, word: String): Boolean {
+    val n = matrixOfWords.size
+    val m = matrixOfWords[0].size
+    val solution = Array(n) { IntArray(m) }
+    for (i in 0 until n) {
+        for (j in 0 until m) {
+            if (search(matrixOfWords, word, i, j, 0, n, m, solution))
+                return true
+            //O(n * m + wordLength)
         }
     }
-    return Pair(-1, -1)
+    return false
 }
 
-fun readMatrix(inputName: String): Array<CharArray> {
-    val listOfWord = mutableListOf<MutableList<Char>>()
-    for ((index, line) in File(inputName).readLines().withIndex()) {
-        listOfWord.add(mutableListOf())
-        for (symbol in line) {
-            if (symbol != ' ')
-                listOfWord[index].add(symbol)
-        }
+private fun search(matrixOfWords: Array<CharArray>, word: String, row: Int, col: Int,
+                   index: Int, n: Int, m: Int, solution: Array<IntArray>): Boolean {
+    // check if current cell not already used or character in it is not
+
+    if (solution[row][col] != 0 || word[index] != matrixOfWords[row][col]) {
+        return false
     }
-    return listOfWord.map { it -> it.toCharArray() }.toTypedArray()
-}*/
+
+    if (index == word.length - 1) {
+        // word is found, return true
+        solution[row][col] = Path.path++
+        return true
+    }
+
+    // mark the current cell as 1
+    solution[row][col] = Path.path++
+    // check if cell is already used
+
+    if (row + 1 < n && search(matrixOfWords, word, row + 1, col, index + 1, n, m, solution)) {
+        // down
+        return true
+    }
+    if (row - 1 >= 0 && search(matrixOfWords, word, row - 1, col, index + 1, n, m, solution)) {
+        // up
+        return true
+    }
+    if (col + 1 < m && search(matrixOfWords, word, row, col + 1, index + 1, n, m, solution)) {
+        // right
+        return true
+    }
+    if (col - 1 >= 0 && search(matrixOfWords, word, row, col - 1, index + 1, n, m, solution)) {
+        // left
+        return true
+    }
+    solution[row][col] = 0
+    Path.path++
+    return false
+}

@@ -3,6 +3,9 @@
 package lesson1
 
 import java.io.File
+import java.util.TreeMap
+import java.util.TreeSet
+
 
 /**
  * Сортировка времён
@@ -37,11 +40,21 @@ fun sortTimes(inputName: String, outputName: String) {
      * labor intensity = O(n)
      * memory intensity = O(n)
      */
+    File(inputName).readLines().map { it ->
+        val format = Regex("""(([0-1]\d:|2[0-4]:)([0-5]\d|60)(:[0-5]\d|60)(\n|$))""")
+                .matches(it)
+        if (!format) {
+            throw IllegalArgumentException("File format")
+        }
+    }
     val listOfTime = File(inputName).readLines().map { it -> it.split(':') }.map { it ->
         it.reversed().foldIndexed(0)
         { index, prev, elem -> Math.pow(60.0, index.toDouble()).toInt() * elem.toInt() + prev }
     }.toIntArray()
-    insertionSort(listOfTime)
+    //O(n)
+    heapSort(listOfTime)
+    //sort O(nlogn) < O(n) => O(n) = time complexity
+    //space complexity = O(1) for sort
     val outputFile = File(outputName).bufferedWriter()
     for (i in 0..listOfTime.lastIndex) {
         outputFile.write("${toRightFormat(listOfTime[i] / 3600)}:" +
@@ -49,6 +62,8 @@ fun sortTimes(inputName: String, outputName: String) {
                 toRightFormat(listOfTime[i] % 60))
         outputFile.newLine()
     }
+    //O(n + n) => O(n) - time complexity
+    //space complexity O(n)
     outputFile.close()
 }
 
@@ -86,7 +101,39 @@ fun toRightFormat(partOfTime: Int): String {
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortAddresses(inputName: String, outputName: String) {
-    TODO()
+    /**
+     * total
+     * space complexity = O(N)
+     * time complexity = O(N^2)
+     */
+    val anySymbol = Regex("""([A-Za-z]+|[А-яа-я]+)""")
+    val regex =
+            Regex("""($anySymbol\s$anySymbol\s\-\s$anySymbol\s\d(\n|${'$'}))""")
+    File(inputName).readLines().map { it ->
+        val format = regex.matches(it)
+        if (!format) {
+            throw IllegalArgumentException("File format")
+        }
+    }
+    val fromFile = File(inputName).readLines()
+    //space complexity = O(N)
+    //time complexity = O(N)
+    val treeOfAddresses = TreeMap<String, TreeSet<String>>()
+    fromFile.map { treeOfAddresses.put(it.split('-')[1].trim(), TreeSet()) }
+    //space complexity = O(N)
+    //time complexity = O(N)
+    for (key in treeOfAddresses.keys) {
+        treeOfAddresses[key]!!.addAll(fromFile.filter { it.split('-')[1].trim() == key }
+                .map { it -> it.split('-')[0].trim() })
+    }
+    //space complexity = O(N)
+    //time complexity = O(N^2)
+    val writer = File(outputName).bufferedWriter()
+    for ((key, value) in treeOfAddresses) {
+        writer.write(key + " - " + value.joinToString(postfix = "", prefix = ""))
+        writer.newLine()
+    }
+    writer.close()
 }
 
 
@@ -122,11 +169,15 @@ fun sortAddresses(inputName: String, outputName: String) {
  */
 fun sortTemperatures(inputName: String, outputName: String) {
     /**
-     * labor intensity = O(nlogn)
-     * memory intensity = O(n)
+     * time complexity = O(n)
+     * space complexity = O(n)
      */
     val arrayOfTemper = File(inputName).readLines().map { it -> it.toDouble() }.toDoubleArray()
+    //O(n) - time complexity
+    //O(n) - space complexity
     mergerSort(arrayOfTemper)
+    //O(n + logn) => O(n) - time complexity
+    //O(n + n) => O(n) - space complexity
     File(outputName).writeText(arrayOfTemper.joinToString(separator = "\n"))
 }
 
@@ -161,8 +212,8 @@ fun sortTemperatures(inputName: String, outputName: String) {
  */
 fun sortSequence(inputName: String, outputName: String) {
     /**
-     * labor intensity = O(n + m)
-     * memory intensity = O(n)
+     * time complexity = O(N)
+     * space complexity = O(N)
      */
     val sequenceArray = File(inputName).readLines().map { it -> it.toInt() }.toIntArray()
     val sortedSeqArr = countingSortForSeq(sequenceArray, sequenceArray.max()!!)
@@ -185,8 +236,8 @@ fun sortSequence(inputName: String, outputName: String) {
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
     /**
-     * labor intensity = O(nlogn)
-     * memory intensity = O(n)
+     * time complexity = O(N)
+     * space complexity = O(M - N)
      */
     var firstIndex = 0
     var secondIndex = first.size
@@ -197,9 +248,13 @@ fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
         else
             second[index++] = second[secondIndex++]
     }
+    //O(N) N - counts of elements in less array
     while (firstIndex < first.size)
         second[index++] = first[firstIndex++]
     while (secondIndex < second.size)
         second[index++] = second[secondIndex++]
+    //M - counts of elements in bigger array
+    //O(N + (M - N)) => O(N) - time complexity
+
 }
 

@@ -67,10 +67,10 @@ abstract class AbstractAlgorithmsTests {
         assertEquals(3, josephTask(8, 5))
         assertEquals(28, josephTask(40, 3))
         var menNumber = 2
-        /*for (i in 1..20) {
+        for (i in 1..20) {
             assertEquals(1, josephTask(menNumber, 2))
             menNumber *= 2
-        }*/
+        }
     }
 
     fun longestCommonSubstring(longestCommonSubstring: (String, String) -> String) {
@@ -675,5 +675,8 @@ abstract class AbstractAlgorithmsTests {
     fun baldaSearcher(baldaSearcher: (String, Set<String>) -> Set<String>) {
         assertEquals(setOf("ТРАВА", "КРАН", "АКВА", "НАРТЫ"),
                 baldaSearcher("input/balda_in1.txt", setOf("ТРАВА", "КРАН", "АКВА", "НАРТЫ", "РАК")))
+        assertEquals(setOf("ТРАВА", "КРАН", "АКВА", "НАРТЫ", "ИТРКВА", "ИТЫННАРКВА"),
+                baldaSearcher("input/balda_in1.txt", setOf("ТРАВА", "КРАН", "АКВА", "НАРТЫ",
+                        "РАК", "ИТРКВА", "ИТЫННАРКВА", "wdadsadxЫВВсм")))
     }
 }

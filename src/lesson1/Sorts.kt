@@ -56,6 +56,7 @@ private fun merge(elements: IntArray, begin: Int, middle: Int, end: Int) {
     var li = 0
     var ri = 0
     for (i in begin until end) {
+        if (elements[i] !in -273.0..500.0) throw IllegalArgumentException("Not in range")
         if (li < left.size && (ri == right.size || left[li] <= right[ri])) {
             elements[i] = left[li++]
         } else {
@@ -180,6 +181,8 @@ fun countingSortForSeq(elements: IntArray, limit: Int): IntArray {
     for (element in elements) {
         count[element]++
     }
+    //time complexity O(N)
+    //space complexity O(N)
     val max = count.max()
     var min = 0
     for (i in 0..limit) {
@@ -188,7 +191,8 @@ fun countingSortForSeq(elements: IntArray, limit: Int): IntArray {
             break
         }
     }
-    //O(m)
+    //time complexity O(N)
+    //space complexity O(N)
     val out = IntArray(elements.size)
     var index = 0
     var offset = 0
@@ -198,9 +202,9 @@ fun countingSortForSeq(elements: IntArray, limit: Int): IntArray {
         } else out[index - offset] = elements[index]
         index++
     }
-    //O(n)
+    //time complexity O(N)
+    //space complexity O(N)
     for (i in elements.size - max!! until elements.size)
         out[i] = min
-    //O(n+m)
     return out
 }
