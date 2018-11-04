@@ -115,6 +115,7 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
      * time complexity = O(N)
      * space comlexity = O(N)
      */
+    if (choiceInterval <= 0) throw IllegalArgumentException()
     var survivor = 0
     for (i in 2..menNumber) {
         survivor = (choiceInterval + survivor) % i

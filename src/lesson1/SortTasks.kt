@@ -37,23 +37,17 @@ import java.util.TreeSet
  */
 fun sortTimes(inputName: String, outputName: String) {
     /**
-     * labor intensity = O(n)
+     * labor intensity = O(NlogN)
      * memory intensity = O(n)
      */
-    File(inputName).readLines().map { it ->
-        val format = Regex("""(([0-1]\d:|2[0-4]:)([0-5]\d|60)(:[0-5]\d|60)(\n|$))""")
-                .matches(it)
-        if (!format) {
-            throw IllegalArgumentException("File format")
-        }
-    }
     val listOfTime = File(inputName).readLines().map { it -> it.split(':') }.map { it ->
         it.reversed().foldIndexed(0)
-        { index, prev, elem -> Math.pow(60.0, index.toDouble()).toInt() * elem.toInt() + prev }
+        { index, prev, elem ->
+            Array(index) { 60 }.fold(1) { prev1, elem1 -> prev1 * elem1} * elem.toInt() + prev }
     }.toIntArray()
     //O(n)
     heapSort(listOfTime)
-    //sort O(nlogn) < O(n) => O(n) = time complexity
+    //sort O(nlogn) > O(n) => O(NlogN) = time complexity
     //space complexity = O(1) for sort
     val outputFile = File(outputName).bufferedWriter()
     for (i in 0..listOfTime.lastIndex) {
@@ -106,9 +100,9 @@ fun sortAddresses(inputName: String, outputName: String) {
      * space complexity = O(N)
      * time complexity = O(N^2)
      */
-    val anySymbol = Regex("""([A-Za-z]+|[А-яа-я]+)""")
+    val anySymbol = Regex("""([A-Za-z]+|[А-Яа-я]+)""")
     val regex =
-            Regex("""($anySymbol\s$anySymbol\s\-\s$anySymbol\s\d(\n|${'$'}))""")
+            Regex("""($anySymbol\s+$anySymbol\s+-\s$anySymbol\s+\d+(\n|$))""")
     File(inputName).readLines().map { it ->
         val format = regex.matches(it)
         if (!format) {

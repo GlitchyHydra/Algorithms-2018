@@ -1,5 +1,6 @@
 package lesson2
 
+import org.junit.jupiter.api.assertThrows
 import java.io.BufferedWriter
 import java.io.File
 import java.util.*
@@ -43,6 +44,7 @@ abstract class AbstractAlgorithmsTests {
     }
 
     fun optimizeBuyAndSell(optimizeBuyAndSell: (String) -> Pair<Int, Int>) {
+        //regular tests
         assertEquals(3 to 4, optimizeBuyAndSell("input/buysell_in1.txt"))
         assertEquals(8 to 12, optimizeBuyAndSell("input/buysell_in2.txt"))
         assertEquals(3 to 4, optimizeBuyAndSell("input/buysell_in3.txt"))
@@ -52,6 +54,11 @@ abstract class AbstractAlgorithmsTests {
         } finally {
             File("temp_prices.txt").delete()
         }
+
+        //unexpected cases
+        assertThrows<IllegalArgumentException> { optimizeBuyAndSell("input/buysell_in4.txt") }
+
+        //large test
         try {
             val expectedAnswer = generatePrices(100000)
             assertEquals(expectedAnswer, optimizeBuyAndSell("temp_prices.txt"))
@@ -61,11 +68,18 @@ abstract class AbstractAlgorithmsTests {
     }
 
     fun josephTask(josephTask: (Int, Int) -> Int) {
+        //regular
         assertEquals(1, josephTask(1, 1))
         assertEquals(2, josephTask(2, 1))
-        assertEquals(50000000, josephTask(50000000, 1))
         assertEquals(3, josephTask(8, 5))
         assertEquals(28, josephTask(40, 3))
+
+        //unexpected
+        assertThrows<IllegalArgumentException> { josephTask(3, 0) }
+        assertThrows<IllegalArgumentException> { josephTask(3, -1) }
+
+        //large
+        assertEquals(50000000, josephTask(50000000, 1))
         var menNumber = 2
         for (i in 1..20) {
             assertEquals(1, josephTask(menNumber, 2))
@@ -74,9 +88,19 @@ abstract class AbstractAlgorithmsTests {
     }
 
     fun longestCommonSubstring(longestCommonSubstring: (String, String) -> String) {
+        //regular
         assertEquals("", longestCommonSubstring("мой мир", "я"))
         assertEquals("зд", longestCommonSubstring("здравствуй мир", "мы здесь"))
         assertEquals("СЕРВАТОР", longestCommonSubstring("ОБСЕРВАТОРИЯ", "КОНСЕРВАТОРЫ"))
+
+        //unexpected
+        //two equals common substring або and тор
+        assertEquals("або", lesson2.longestCommonSubstring("лаборатория", "аботор"))
+        assertEquals("", lesson2.longestCommonSubstring("", ""))
+        assertEquals("45", lesson2.longestCommonSubstring("345", "45"))
+        assertEquals("мир", lesson2.longestCommonSubstring("мир", "мир"))
+
+        //large
         assertEquals("огда ", longestCommonSubstring(
                 """
 Мой дядя самых честных правил,
@@ -649,14 +673,21 @@ abstract class AbstractAlgorithmsTests {
     }
 
     fun calcPrimesNumber(calcPrimesNumber: (Int) -> Int) {
+        //unexpected
         assertEquals(0, calcPrimesNumber(-1))
         assertEquals(0, calcPrimesNumber(1))
+        assertEquals(0, calcPrimesNumber(-2))
+
+        //regular
         assertEquals(1, calcPrimesNumber(2))
         assertEquals(2, calcPrimesNumber(4))
         assertEquals(4, calcPrimesNumber(10))
         assertEquals(8, calcPrimesNumber(20))
+
+        //large
         assertEquals(1000, calcPrimesNumber(7920))
         assertEquals(1229, calcPrimesNumber(10000))
+        assertEquals(1438, calcPrimesNumber(12000))
         assertEquals(2262, calcPrimesNumber(20000))
         assertEquals(5133, calcPrimesNumber(50000))
         assertEquals(9592, calcPrimesNumber(100000))

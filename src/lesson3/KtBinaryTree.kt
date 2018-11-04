@@ -90,8 +90,8 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     /**
      * Удаление элемента в дереве
      * Средняя
-     * time complexity = O(NlogN)
-     * memory intesity = O(NlogN)
+     * time complexity = O(logN)
+     * memory intesity = O(logN)
      */
     override fun remove(element: T): Boolean {
         if (!this.contains(element)) return false
@@ -208,8 +208,8 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
         /**
          * Поиск следующего элемента
          * Средняя
-         * time complexity = O(NlognN)
-         * space complexity = O(NlogN)
+         * time complexity = O(lognN)
+         * space complexity = O(logN)
          */
         private fun findNext(): Node<T>? {
             if (size == 0) return null
