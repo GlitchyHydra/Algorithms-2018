@@ -235,20 +235,19 @@ class Path {
 
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
     /**
-     * k = word length
-     * time complexity = O(n * m + k)
-     * space complexity = O(n * m + k)
+     * time complexity = O(n * m )
+     * space complexity = O(n * m)
      */
     val baldaMatrix = File(inputName).readLines()
             .map { it -> it.replace(" ", "").toCharArray() }.toTypedArray()
     //O(n)
-    val finnedWords = mutableSetOf<String>()
+    val foundWords = mutableSetOf<String>()
     for (word in words) {
         if (searchWord(baldaMatrix, word))
-            finnedWords.add(word)
+            foundWords.add(word)
         Path.path = 1
     }
-    return finnedWords
+    return foundWords
 }
 
 private fun searchWord(matrixOfWords: Array<CharArray>, word: String): Boolean {
@@ -259,7 +258,7 @@ private fun searchWord(matrixOfWords: Array<CharArray>, word: String): Boolean {
         for (j in 0 until m) {
             if (search(matrixOfWords, word, i, j, 0, n, m, solution))
                 return true
-            //O(n * m + wordLength)
+            //O(n * m )
         }
     }
     return false

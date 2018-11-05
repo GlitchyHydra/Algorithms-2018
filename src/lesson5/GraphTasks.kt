@@ -2,6 +2,9 @@
 
 package lesson5
 
+import lesson5.impl.GraphBuilder
+import java.util.*
+
 /**
  * Эйлеров цикл.
  * Средняя
@@ -61,7 +64,41 @@ fun Graph.findEulerLoop(): List<Graph.Edge> {
  * J ------------ K
  */
 fun Graph.minimumSpanningTree(): Graph {
-    TODO()
+    val from = this.vertices.first()
+    val info = mutableMapOf<Graph.Vertex, VertexInfo>()
+    for (vertex in this.vertices) {
+        info[vertex] = VertexInfo(vertex, Int.MAX_VALUE, null)
+    }
+    val fromInfo = VertexInfo(from, 0, null)
+    val queue = PriorityQueue<VertexInfo>()
+    queue.add(fromInfo)
+    info[from] = fromInfo
+    while (queue.isNotEmpty()) {
+        val currentInfo = queue.poll()
+        val currentVertex = currentInfo.vertex
+        for (vertex in this.getNeighbors(currentVertex)) {
+            val weight = this.getConnection(currentVertex, vertex)?.weight
+            if (weight != null) {
+                val newDistance = info[currentVertex]!!.distance + weight
+                if (info[vertex]!!.distance > newDistance) {
+                    val newInfo = VertexInfo(vertex, newDistance, currentVertex)
+                    queue.add(newInfo)
+                    info[vertex] = newInfo
+                }
+            }
+        }
+    }
+    var i = 1
+    val g = GraphBuilder().apply {
+        info.map {
+            if (i != 1) {
+                addVertex("${it.value.vertex}")
+                addConnection(it.value.prev!!, it.key)
+            }
+            i++
+        }
+    }.build()
+    return g
 }
 
 /**

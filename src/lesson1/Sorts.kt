@@ -175,36 +175,3 @@ fun countingSort(elements: IntArray, limit: Int): IntArray {
     //O(n)
     return out
 }
-
-fun countingSortForSeq(elements: IntArray, limit: Int): IntArray {
-    val count = IntArray(limit + 1)
-    for (element in elements) {
-        count[element]++
-    }
-    //time complexity O(N)
-    //space complexity O(N)
-    val max = count.max()
-    var min = 0
-    for (i in 0..limit) {
-        if (max == count[i]) {
-            min = i
-            break
-        }
-    }
-    //time complexity O(N)
-    //space complexity O(N)
-    val out = IntArray(elements.size)
-    var index = 0
-    var offset = 0
-    while (index < elements.size) {
-        if (elements[index] == min) {
-            offset++
-        } else out[index - offset] = elements[index]
-        index++
-    }
-    //time complexity O(N)
-    //space complexity O(N)
-    for (i in elements.size - max!! until elements.size)
-        out[i] = min
-    return out
-}

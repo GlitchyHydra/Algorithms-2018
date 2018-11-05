@@ -3,8 +3,7 @@
 package lesson1
 
 import java.io.File
-import java.util.TreeMap
-import java.util.TreeSet
+import java.util.*
 
 
 /**
@@ -37,18 +36,20 @@ import java.util.TreeSet
  */
 fun sortTimes(inputName: String, outputName: String) {
     /**
-     * labor intensity = O(NlogN)
-     * memory intensity = O(n)
+     * time complexity = O(NlogN)
+     * space complexity = O(n)
      */
     val listOfTime = File(inputName).readLines().map { it -> it.split(':') }.map { it ->
         it.reversed().foldIndexed(0)
         { index, prev, elem ->
-            Array(index) { 60 }.fold(1) { prev1, elem1 -> prev1 * elem1} * elem.toInt() + prev }
+            Array(index) { 60 }.fold(1) { prev1, elem1 -> prev1 * elem1 } * elem.toInt() + prev
+        }
     }.toIntArray()
-    //O(n)
+    //time - O(N + 3) = O(N)
+    //space - O(N)
     heapSort(listOfTime)
-    //sort O(nlogn) > O(n) => O(NlogN) = time complexity
-    //space complexity = O(1) for sort
+    //O(nlogn) > O(n) => O(NlogN) = time complexity
+    //space complexity = O(N + 1) -> O(N)
     val outputFile = File(outputName).bufferedWriter()
     for (i in 0..listOfTime.lastIndex) {
         outputFile.write("${toRightFormat(listOfTime[i] / 3600)}:" +
@@ -56,8 +57,6 @@ fun sortTimes(inputName: String, outputName: String) {
                 toRightFormat(listOfTime[i] % 60))
         outputFile.newLine()
     }
-    //O(n + n) => O(n) - time complexity
-    //space complexity O(n)
     outputFile.close()
 }
 
@@ -96,9 +95,8 @@ fun toRightFormat(partOfTime: Int): String {
  */
 fun sortAddresses(inputName: String, outputName: String) {
     /**
-     * total
-     * space complexity = O(N)
-     * time complexity = O(N^2)
+     * space complexity = O(N + M)
+     * time complexity = O(N*M)
      */
     val anySymbol = Regex("""([A-Za-z]+|[А-Яа-я]+)""")
     val regex =
@@ -114,14 +112,14 @@ fun sortAddresses(inputName: String, outputName: String) {
     //time complexity = O(N)
     val treeOfAddresses = TreeMap<String, TreeSet<String>>()
     fromFile.map { treeOfAddresses.put(it.split('-')[1].trim(), TreeSet()) }
-    //space complexity = O(N)
+    //space complexity = O(M)
     //time complexity = O(N)
     for (key in treeOfAddresses.keys) {
         treeOfAddresses[key]!!.addAll(fromFile.filter { it.split('-')[1].trim() == key }
                 .map { it -> it.split('-')[0].trim() })
     }
-    //space complexity = O(N)
-    //time complexity = O(N^2)
+    //space complexity = O(N + M)
+    //time complexity = O(N*M)
     val writer = File(outputName).bufferedWriter()
     for ((key, value) in treeOfAddresses) {
         writer.write(key + " - " + value.joinToString(postfix = "", prefix = ""))
@@ -163,15 +161,15 @@ fun sortAddresses(inputName: String, outputName: String) {
  */
 fun sortTemperatures(inputName: String, outputName: String) {
     /**
-     * time complexity = O(n)
-     * space complexity = O(n)
+     * time complexity = O(NlogN)
+     * space complexity = O(N)
      */
     val arrayOfTemper = File(inputName).readLines().map { it -> it.toDouble() }.toDoubleArray()
-    //O(n) - time complexity
-    //O(n) - space complexity
+    //O(N) - time complexity
+    //O(N) - space complexity
     mergerSort(arrayOfTemper)
-    //O(n + logn) => O(n) - time complexity
-    //O(n + n) => O(n) - space complexity
+    //O(N + NlogN) => O(n) - time complexity
+    //O(N + N) => O(n) - space complexity
     File(outputName).writeText(arrayOfTemper.joinToString(separator = "\n"))
 }
 
@@ -210,8 +208,28 @@ fun sortSequence(inputName: String, outputName: String) {
      * space complexity = O(N)
      */
     val sequenceArray = File(inputName).readLines().map { it -> it.toInt() }.toIntArray()
-    val sortedSeqArr = countingSortForSeq(sequenceArray, sequenceArray.max()!!)
-    File(outputName).writeText(sortedSeqArr.joinToString(separator = "\n"))
+    //time = O(N) N - count of numbers
+    //space = O(N)
+    val sequenceMap = HashMap<Int, Int>()
+    sequenceArray.map {
+        val check = sequenceMap.putIfAbsent(it, 1)
+        if (check != null) {
+            val count = sequenceMap[it]!! + 1
+            sequenceMap[it] = count
+        }
+    }
+    //time = O(2N) -> O(N)
+    //space = O(2N) -> O(N)
+    val stackOfNumb = Stack<Int>()
+    val max = sequenceMap.values.max()
+    val min = sequenceMap.filter { entry ->
+        entry.value == max
+    }.keys.min()
+    sequenceArray.map { if (it != min) stackOfNumb.add(it) }
+    for (i in 1..sequenceMap[min]!!) {
+        stackOfNumb.add(min)
+    }
+    File(outputName).writeText(stackOfNumb.toIntArray().joinToString(separator = "\n"))
 }
 
 /**
@@ -230,8 +248,9 @@ fun sortSequence(inputName: String, outputName: String) {
  */
 fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
     /**
+     * N - second.size
      * time complexity = O(N)
-     * space complexity = O(M - N)
+     * space complexity = O(1)
      */
     var firstIndex = 0
     var secondIndex = first.size
@@ -247,8 +266,6 @@ fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
         second[index++] = first[firstIndex++]
     while (secondIndex < second.size)
         second[index++] = second[secondIndex++]
-    //M - counts of elements in bigger array
-    //O(N + (M - N)) => O(N) - time complexity
 
 }
 
