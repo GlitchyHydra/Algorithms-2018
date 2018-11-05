@@ -250,7 +250,8 @@ fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
     /**
      * N - second.size
      * time complexity = O(N)
-     * space complexity = O(1)
+     * firstIndex and secondIndex have been modifying every cycle
+     * and because of it space complexity = O(N)
      */
     var firstIndex = 0
     var secondIndex = first.size
