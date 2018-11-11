@@ -177,8 +177,8 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
                 while (ancestor != currentNode) {
                     if (currentNode.value < ancestor.value) {
                         successor = ancestor
-                        ancestor = ancestor.left ?: throw IllegalArgumentException()
-                    } else ancestor = ancestor.right ?: throw IllegalArgumentException()
+                        ancestor = ancestor.left ?: return null
+                    } else ancestor = ancestor.right ?: return null
                 }
                 return successor
             }
@@ -197,11 +197,74 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
          * complexity like in remove
          */
         override fun remove() {
-            val cur = current
+            val cur = current ?: throw IllegalArgumentException()
+            var parent = root ?: throw IllegalArgumentException()
+            var child = root ?: throw IllegalArgumentException()
+            var onLeft = false
+            while (child != current) {
+                parent = child
+                if (child.value < cur.value) {
+                    child = child.right ?: throw IllegalArgumentException()
+                    onLeft = false
+                } else {
+                    child = child.left ?: throw IllegalArgumentException()
+                    onLeft = true
+                }
+            }
+            when {
+                cur.left == null && cur.right == null -> {
+                    when {
+                        current == root -> root = null
+                        onLeft -> parent.left = null
+                        else -> parent.right = null
+                    }
+                }
+                cur.left == null -> {
+                    when {
+                        current == root -> root = cur.right
+                        onLeft -> parent.left = cur.right
+                        else -> parent.right = cur.right
+                    }
+                }
+                cur.right == null -> {
+                    when {
+                        current == root -> root = cur.left
+                        onLeft -> parent.left = cur.left
+                        else -> parent.right = cur.left
+                    }
+                }
+                else -> {
+                    var minChild = cur.right ?: return
+                    var parentMinChild = minChild
+                    while (minChild.left != null) {
+                        parentMinChild = minChild
+                        minChild = minChild.left ?: return
+                    }
+                    when {
+                        cur == root && parentMinChild == minChild -> {
+                            val rootLeft = root!!.left
+                            root = minChild
+                            minChild.left = rootLeft
+                        }
+                        cur == root && parentMinChild != minChild -> {
+                            parentMinChild.left = minChild.right
+                            root = minChild
+                            minChild.left = cur.left
+                            minChild.right = cur.right
+                        }
+                        parentMinChild == minChild -> setNode(!onLeft, parent, minChild)
+                        else -> {
+                            parentMinChild.left = minChild.right
+                            minChild.right = cur.right
+                            minChild.left = cur.left
+                            setNode(!onLeft, parent, minChild)
+                        }
+                    }
+                    minChild.left = cur.left
+                }
+            }
+            size--
             current = findNext()
-            if (cur != null)
-                remove(cur.value)
-            else return
         }
     }
 

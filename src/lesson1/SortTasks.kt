@@ -2,13 +2,8 @@
 
 package lesson1
 
-import lesson3.KtBinaryTree
 import java.io.File
-import java.lang.Math.abs
 import java.util.*
-import javax.xml.crypto.dom.DOMCryptoContext
-import kotlin.math.sign
-
 
 /**
  * Сортировка времён
@@ -94,6 +89,8 @@ fun sortAddresses(inputName: String, outputName: String) {
     /**
      * space complexity = O(N + M)
      * time complexity = O(N * M)
+     * N - fromFile.size
+     * M - treeOfAddresses.size
      */
     val anySymbol = Regex("""([A-Za-z]+|[А-Яа-я]+)""")
     val regex =
@@ -116,7 +113,7 @@ fun sortAddresses(inputName: String, outputName: String) {
                 .map { it -> it.split('-')[0].trim() })
     }
     //space complexity = O(N + M)
-    //time complexity = O(N*M)
+    //time complexity = O(N * M)
     val writer = File(outputName).bufferedWriter()
     for ((key, value) in treeOfAddresses) {
         writer.write(key + " - " + value.joinToString(postfix = "", prefix = ""))

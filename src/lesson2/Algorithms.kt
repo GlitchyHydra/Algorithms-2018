@@ -178,7 +178,7 @@ fun longestCommonSubstring(first: String, second: String): String {
  */
 fun calcPrimesNumber(limit: Int): Int {
     /**
-     * time complexity = O(N * sqrtN)
+     * time complexity = O(N^3/2)
      * space complexity = O(1)
      */
     if (limit <= 1) return 0
@@ -235,8 +235,8 @@ class Path {
 
 fun baldaSearcher(inputName: String, words: Set<String>): Set<String> {
     /**
-     * time complexity = O(n * m )
-     * space complexity = O(n * m)
+     * time complexity = O(N * M + C * L)
+     * space complexity = O(N * M)
      */
     val baldaMatrix = File(inputName).readLines()
             .map { it -> it.replace(" ", "").toCharArray() }.toTypedArray()
@@ -267,6 +267,11 @@ private fun searchWord(matrixOfWords: Array<CharArray>, word: String): Boolean {
 private fun search(matrixOfWords: Array<CharArray>, word: String, row: Int, col: Int,
                    index: Int, n: Int, m: Int, solution: Array<IntArray>): Boolean {
     // check if current cell not already used or character in it is not
+    /**
+     * O(C * L)
+     * C = count of words
+     * L = word length
+     */
 
     if (solution[row][col] != 0 || word[index] != matrixOfWords[row][col]) {
         return false
