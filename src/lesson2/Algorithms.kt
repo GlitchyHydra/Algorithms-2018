@@ -178,7 +178,7 @@ fun longestCommonSubstring(first: String, second: String): String {
  */
 fun calcPrimesNumber(limit: Int): Int {
     /**
-     * time complexity = O(NlogN)
+     * time complexity = O(N * sqrtN)
      * space complexity = O(1)
      */
     if (limit <= 1) return 0

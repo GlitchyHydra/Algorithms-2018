@@ -42,6 +42,7 @@ private fun merge(elements: DoubleArray, begin: Int, middle: Int, end: Int) {
     var li = 0
     var ri = 0
     for (i in begin until end) {
+        if (elements[i] !in -273.0..500.0) throw IllegalArgumentException("Not in range")
         if (li < left.size && (ri == right.size || left[li] <= right[ri])) {
             elements[i] = left[li++]
         } else {
@@ -56,7 +57,6 @@ private fun merge(elements: IntArray, begin: Int, middle: Int, end: Int) {
     var li = 0
     var ri = 0
     for (i in begin until end) {
-        if (elements[i] !in -273.0..500.0) throw IllegalArgumentException("Not in range")
         if (li < left.size && (ri == right.size || left[li] <= right[ri])) {
             elements[i] = left[li++]
         } else {

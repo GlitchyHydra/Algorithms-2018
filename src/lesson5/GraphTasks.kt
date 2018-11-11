@@ -64,11 +64,16 @@ fun Graph.findEulerLoop(): List<Graph.Edge> {
  * J ------------ K
  */
 fun Graph.minimumSpanningTree(): Graph {
+    /**
+     * time complexity O(V + E)
+     * space complexity O(V + E)
+     */
     val from = this.vertices.first()
     val info = mutableMapOf<Graph.Vertex, VertexInfo>()
     for (vertex in this.vertices) {
         info[vertex] = VertexInfo(vertex, Int.MAX_VALUE, null)
     }
+    //O(V)
     val fromInfo = VertexInfo(from, 0, null)
     val queue = PriorityQueue<VertexInfo>()
     queue.add(fromInfo)

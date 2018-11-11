@@ -1,5 +1,7 @@
 package lesson3
 
+import java.util.*
+
 class Trie : AbstractMutableSet<String>(), MutableSet<String> {
     override var size: Int = 0
         private set
@@ -61,24 +63,54 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
      * Итератор для префиксного дерева
      * Сложная
      */
-    override fun iterator(): MutableIterator<String> {
+    override fun iterator(): MutableIterator<String> = object : MutableIterator<String> {
         /**
          * n - char counts
          * time complexity = O(n)
          * m - counts of loops in traverse
          * space complexity = O(n * m)
          */
-        val visitedWords = mutableSetOf<String>()
-        for (element in root.children) {
-            val word = mutableListOf<Char>()
-            word.add(element.key)
-            traverse(element.value, visitedWords, word)
+        private val st = traverseAll()
+
+        private var next: String? = null
+
+        init {
+            val n = st.poll()
+            this.next = n
         }
-        return visitedWords.iterator()
+
+        override fun hasNext(): Boolean {
+            return next != null
+        }
+
+        override fun next(): String {
+            val result = next ?: throw NoSuchElementException()
+            next = if (st.size != 0) st.poll() else null
+            return result
+        }
+
+        override fun remove() {
+            remove(next)
+            next = st.poll()
+        }
     }
 
 
-    private fun traverse(trieNode: Node, visitedWords: MutableSet<String>, word: MutableList<Char>) {
+    private fun traverseAll(): ArrayDeque<String> {
+        val visitedWords = ArrayDeque<String>()
+        for (element in root.children) {
+            val word = mutableListOf<Char>()
+            word.add(element.key)
+            traverse(visitedWords, element.value, word)
+        }
+        return visitedWords
+    }
+
+    private fun traverse(visitedWords: ArrayDeque<String>, trieNode: Node, word: MutableList<Char>) {
+        if (trieNode.children.isEmpty()) {
+            word.removeAt(word.lastIndex)
+            return
+        }
         val checkIfWord = trieNode.children.isEmpty() || trieNode.children.containsKey(0.toChar())
         val wordInString = word.joinToString(prefix = "", separator = "", postfix = "")
         if (checkIfWord && !visitedWords.contains(wordInString)) {
@@ -88,9 +120,10 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
         }
         for (char in trieNode.children) {
             word.add(char.key)
-            traverse(char.value, visitedWords, word)
+            traverse(visitedWords, char.value, word)
         }
         word.removeAt(word.lastIndex)
         return
     }
 }
+

@@ -2,8 +2,12 @@
 
 package lesson1
 
+import lesson3.KtBinaryTree
 import java.io.File
+import java.lang.Math.abs
 import java.util.*
+import javax.xml.crypto.dom.DOMCryptoContext
+import kotlin.math.sign
 
 
 /**
@@ -52,19 +56,12 @@ fun sortTimes(inputName: String, outputName: String) {
     //space complexity = O(N + 1) -> O(N)
     val outputFile = File(outputName).bufferedWriter()
     for (i in 0..listOfTime.lastIndex) {
-        outputFile.write("${toRightFormat(listOfTime[i] / 3600)}:" +
-                "${toRightFormat((listOfTime[i] / 60) % 60)}:" +
-                toRightFormat(listOfTime[i] % 60))
+        val (hours, minutes, seconds) = Triple(listOfTime[i] / 3600,
+                listOfTime[i] / 60 % 60, listOfTime[i] % 60)
+        outputFile.write("%02d:%02d:%02d".format(hours, minutes, seconds))
         outputFile.newLine()
     }
     outputFile.close()
-}
-
-fun toRightFormat(partOfTime: Int): String {
-    if (partOfTime in 0..9) {
-        return "0$partOfTime"
-    }
-    return "$partOfTime"
 }
 
 /**
@@ -96,7 +93,7 @@ fun toRightFormat(partOfTime: Int): String {
 fun sortAddresses(inputName: String, outputName: String) {
     /**
      * space complexity = O(N + M)
-     * time complexity = O(N*M)
+     * time complexity = O(N * M)
      */
     val anySymbol = Regex("""([A-Za-z]+|[А-Яа-я]+)""")
     val regex =
@@ -164,13 +161,16 @@ fun sortTemperatures(inputName: String, outputName: String) {
      * time complexity = O(NlogN)
      * space complexity = O(N)
      */
-    val arrayOfTemper = File(inputName).readLines().map { it -> it.toDouble() }.toDoubleArray()
+    val arrayOfTemper = File(inputName)
+            .readLines().map { it -> (it.toDouble() * 10).toInt() }.toIntArray()
+    heapSort(arrayOfTemper)
     //O(N) - time complexity
     //O(N) - space complexity
-    mergerSort(arrayOfTemper)
+    //mergerSort(arrayOfTemper)
     //O(N + NlogN) => O(n) - time complexity
     //O(N + N) => O(n) - space complexity
-    File(outputName).writeText(arrayOfTemper.joinToString(separator = "\n"))
+    File(outputName).writeText(arrayOfTemper
+            .joinToString(separator = "\n", transform = { it -> (it.toDouble() / 10).toString()}))
 }
 
 /**
@@ -211,7 +211,7 @@ fun sortSequence(inputName: String, outputName: String) {
     //time = O(N) N - count of numbers
     //space = O(N)
     val sequenceMap = HashMap<Int, Int>()
-    sequenceArray.map {
+    sequenceArray.forEach {
         val check = sequenceMap.putIfAbsent(it, 1)
         if (check != null) {
             val count = sequenceMap[it]!! + 1
@@ -250,8 +250,7 @@ fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
     /**
      * N - second.size
      * time complexity = O(N)
-     * firstIndex and secondIndex have been modifying every cycle
-     * and because of it space complexity = O(N)
+     * space complexity = O(1)
      */
     var firstIndex = 0
     var secondIndex = first.size
