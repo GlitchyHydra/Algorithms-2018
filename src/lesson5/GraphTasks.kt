@@ -67,6 +67,8 @@ fun Graph.minimumSpanningTree(): Graph {
     /**
      * time complexity O(V + E)
      * space complexity O(V + E)
+     * V - vertices
+     * E - edges
      */
     val from = this.vertices.first()
     val info = mutableMapOf<Graph.Vertex, VertexInfo>()
