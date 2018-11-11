@@ -126,4 +126,3 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
         return
     }
 }
-

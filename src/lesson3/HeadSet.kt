@@ -67,8 +67,7 @@ class HeadSet<T : Comparable<T>>(private val delegate: SortedSet<T>, private val
         }
 
         override fun remove() {
-            if (next!! >= toElement)
-                delegate.remove()
+            delegate.remove()
         }
 
     }

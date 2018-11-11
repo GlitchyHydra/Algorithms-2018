@@ -69,8 +69,7 @@ class SubSet<T : Comparable<T>>(private val delegate: SortedSet<T>,
         }
 
         override fun remove() {
-            if (next!! < fromElement || next!! >= toElement)
-                delegate.remove()
+            delegate.remove()
         }
 
     }

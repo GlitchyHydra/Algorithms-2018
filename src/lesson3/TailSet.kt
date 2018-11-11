@@ -66,8 +66,7 @@ class TailSet<T : Comparable<T>>(private val delegate: SortedSet<T>, private val
         }
 
         override fun remove() {
-            if (next!! < fromElement)
-                delegate.remove()
+            delegate.remove()
         }
 
     }
