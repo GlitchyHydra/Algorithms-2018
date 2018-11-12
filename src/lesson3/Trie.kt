@@ -73,10 +73,10 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
         private val st = traverseAll()
 
         private var next: String? = null
+        private var current: String? = null
 
         init {
-            val n = st.poll()
-            this.next = n
+            next = st.poll()
         }
 
         override fun hasNext(): Boolean {
@@ -85,12 +85,13 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
 
         override fun next(): String {
             val result = next ?: throw NoSuchElementException()
+            current = result
             next = if (st.size != 0) st.poll() else null
             return result
         }
 
         override fun remove() {
-            remove(next)
+            remove(current)
             next = st.poll()
         }
     }

@@ -288,7 +288,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
      * space complexity = O(1)
      */
     override fun headSet(toElement: T): SortedSet<T> =
-            HeadSet(this, toElement)
+            SubSet(this, null, toElement)
 
 
     /**
@@ -298,7 +298,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
      * Сложная
      */
     override fun tailSet(fromElement: T): SortedSet<T> =
-            TailSet(this, fromElement)
+            SubSet(this, fromElement, null)
 
 
     override fun first(): T {
