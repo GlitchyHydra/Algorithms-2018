@@ -95,6 +95,4 @@ class SubSet<T : Comparable<T>>(private val delegate: SortedSet<T>,
             toElement == null -> delegate.count { it >= fromElement }
             else -> delegate.count { it >= fromElement && it < toElement }
         }
-
-
 }

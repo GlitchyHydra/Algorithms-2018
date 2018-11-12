@@ -49,7 +49,11 @@ class TrieTest {
         trie.add("zwv")
         trie.add("zyt")
         trie.add("abcde")
-
-        assertEquals(setOf("abcdefg", "zyx", "zwv", "zyt", "abcde"), trie)
+        assertEquals(setOf("abcdefg", "abcde", "zyx", "zyt", "zwv"), trie)
+        //добавил в тест проверку на удаление в итераторе
+        val it = trie.iterator()
+        it.next()
+        it.remove()
+        assertEquals(setOf("abcde", "zyx", "zwv", "zyt"), trie)
     }
 }

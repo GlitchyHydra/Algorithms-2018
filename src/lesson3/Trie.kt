@@ -1,6 +1,7 @@
 package lesson3
 
-import java.util.*
+import java.util.ArrayDeque
+import java.util.Stack
 
 class Trie : AbstractMutableSet<String>(), MutableSet<String> {
     override var size: Int = 0
@@ -100,30 +101,25 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
     private fun traverseAll(): ArrayDeque<String> {
         val visitedWords = ArrayDeque<String>()
         for (element in root.children) {
-            val word = mutableListOf<Char>()
+            val word = Stack<Char>()
             word.add(element.key)
             traverse(visitedWords, element.value, word)
         }
         return visitedWords
     }
 
-    private fun traverse(visitedWords: ArrayDeque<String>, trieNode: Node, word: MutableList<Char>) {
-        if (trieNode.children.isEmpty()) {
-            word.removeAt(word.lastIndex)
-            return
-        }
-        val checkIfWord = trieNode.children.isEmpty() || trieNode.children.containsKey(0.toChar())
-        val wordInString = word.joinToString(prefix = "", separator = "", postfix = "")
-        if (checkIfWord && !visitedWords.contains(wordInString)) {
+    private fun traverse(visitedWords: ArrayDeque<String>, trieNode: Node, word: Stack<Char>) {
+        if (trieNode.children.isEmpty() && word.last() == 0.toChar()) {
+            word.pop()
+            val wordInString = word.joinToString(prefix = "", separator = "", postfix = "")
             visitedWords.add(wordInString)
-            word.removeAt(word.lastIndex)
             return
         }
         for (char in trieNode.children) {
             word.add(char.key)
             traverse(visitedWords, char.value, word)
         }
-        word.removeAt(word.lastIndex)
+        word.pop()
         return
     }
 }
