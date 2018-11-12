@@ -54,6 +54,7 @@ class TrieTest {
         val it = trie.iterator()
         it.next()
         it.remove()
+        assertEquals("zyx", it.next())
         assertEquals(setOf("abcde", "zyx", "zwv", "zyt"), trie)
     }
 }
