@@ -93,7 +93,6 @@ class Trie : AbstractMutableSet<String>(), MutableSet<String> {
 
         override fun remove() {
             remove(current)
-            next = st.poll()
         }
     }
 
