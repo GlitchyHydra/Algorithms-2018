@@ -3,7 +3,9 @@
 package lesson5
 
 import lesson5.impl.GraphBuilder
+import lesson5.Graph.Vertex
 import java.util.*
+import kotlin.collections.HashMap
 
 /**
  * Эйлеров цикл.
@@ -32,7 +34,54 @@ import java.util.*
  * связного графа ровно по одному разу
  */
 fun Graph.findEulerLoop(): List<Graph.Edge> {
-    TODO()
+    /**
+     * time complexity O(V + E)
+     * space complexity O(V + E)
+     * where V - vertices, E - edges
+     */
+    // time - O(V)
+    if (!this.checkEulerianCircuit()) return emptyList()
+    val s = Stack<Vertex>()
+    val solution = ArrayDeque<Graph.Vertex>()
+    s.push(vertices.first())
+    val edgesList = mutableSetOf<Graph.Edge>()
+    //time - O(V)
+    //space - O(E)
+    edgesList.addAll(edges)
+    //time - O(V + E)
+    while (!s.isEmpty()) {
+        val w = s.lastElement()
+        for (vertex in vertices) {
+            val e = getConnection(w, vertex)
+            if (e != null && edgesList.contains(e)) {
+                s.push(vertex)
+                edgesList.remove(e)
+                break
+            }
+        }
+        if (w == s.last()) {
+            s.pop()
+            solution.add(w)
+        }
+    }
+    //time - O(V + E)
+    //space - O(V + E)
+    val solE = mutableListOf<Graph.Edge>()
+    (0 until solution.size - 1).forEach {
+        solE.add(getConnection(solution.poll(), solution.first)!!)
+    }
+    return solE
+}
+
+fun Graph.checkEulerianCircuit(): Boolean {
+    //Count of incident edges should be even
+    //because you need go to this vertex and out from it
+    //equal counts of a time
+    for (vertex in vertices) {
+        if (getNeighbors(vertex).size % 2 == 1)
+            return false
+    }
+    return true
 }
 
 /**

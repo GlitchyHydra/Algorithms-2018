@@ -2,6 +2,8 @@
 
 package lesson6
 
+import java.io.File
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -14,7 +16,41 @@ package lesson6
  * При сравнении подстрок, регистр символов *имеет* значение.
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+    /**
+     * N = first.length
+     * M = second.length
+     * time complexity O(N * M)
+     * space complexity O(N * M)
+     */
+    val matrix = Array(first.length + 1) { IntArray(second.length + 1) }
+    for (i in 1 until matrix.size) {
+        for (j in 1 until matrix[i].size) {
+            if (first[i - 1] == second[j - 1]) {
+                matrix[i][j] = matrix[i - 1][j - 1] + 1
+            } else {
+                matrix[i][j] = maxOf(matrix[i][j - 1], matrix[i - 1][j])
+            }
+        }
+    }
+    var maxSubString = ""
+    var i = first.length
+    var j = second.length
+    //Вывод подпоследовательности
+    while (i > 0 && j > 0) {
+        when {
+            //если символ из первой и второй равен то нашли нужный
+            first[i - 1] == second[j - 1] -> {
+                maxSubString += first[i - 1]
+                i--; j--
+            }
+            //берем больший из левого и верхнего
+            matrix[i][j - 1] > matrix[i - 1][j] -> j--
+            matrix[i][j - 1] < matrix[i - 1][j] -> i--
+            //верхний = левому идем в любую сторону (в данном случае влево)
+            else -> i--
+        }
+    }
+    return maxSubString.reversed()
 }
 
 /**
@@ -30,7 +66,55 @@ fun longestCommonSubSequence(first: String, second: String): String {
  * В примере ответами являются 2, 8, 9, 12 или 2, 5, 9, 12 -- выбираем первую из них.
  */
 fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
-    TODO()
+    /**
+     * row size - arr.size
+     * time complexity O(n * n/2)
+     * space complexity O(3n) -> O(n)
+     */
+    if (list.isEmpty()) return emptyList()
+    //initial array
+    val arr = list.toIntArray()
+    //array of lengths, all single elements is subseq and they length = 1
+    val lengthArray = IntArray(list.size) { 1 }
+    //index of last larger element in subseq
+    val indexArray = IntArray(list.size)
+
+    (0 until arr.size).forEach { i -> lengthArray[i] = 1; indexArray[i] = i; }
+
+    //time complexity O(arr.size * arr.size/2)
+    //outer cycle O(arr.size)
+    (1 until arr.size).forEach { i ->
+        //inner cycle(arr.size/2)
+        (0 until i).forEach { j ->
+            if (arr[i] > arr[j]) {
+                if (lengthArray[j] + 1 > lengthArray[i]) {
+                    lengthArray[i] = lengthArray[j] + 1
+                    indexArray[i] = j
+                }
+            }
+        }
+    }
+
+    //find the index of max number
+    var maxIndex = 0
+    for (i in 0 until lengthArray.size) {
+        if (lengthArray[i] > lengthArray[maxIndex]) {
+            maxIndex = i
+        }
+    }
+
+    //look for largest subseq by taking indexes in IndexArray
+    //and add element from initial array
+    var t: Int
+    val l = mutableListOf<Int>()
+    var newT = maxIndex
+    do {
+        t = newT
+        l.add(arr[t])
+        newT = indexArray[t]
+    } while (t != newT)
+
+    return l.reversed()
 }
 
 /**
@@ -54,7 +138,37 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
  */
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+    /**
+     * time complexity = O(m * n)
+     * space complexity = O(m * n)
+     */
+    val taskMatrix = File(inputName).readLines()
+            .map { it -> it.split(' ').map { it.toInt() }.toIntArray() }
+            .toTypedArray()
+    val m = taskMatrix.size - 1
+    val n = taskMatrix[0].size - 1
+    val temp = Array(m + 1) { IntArray(n + 1) { 0 } }
+    var sum = 0
+
+    (0..n).forEach { i ->
+        sum += taskMatrix[0][i]
+        temp[0][i] = sum
+    }
+
+    sum = 0
+
+    (0..m).forEach { i ->
+        sum += taskMatrix[i][0]
+        temp[i][0] = sum
+    }
+
+    (1..m).forEach { i ->
+        (1..n).forEach { j ->
+            temp[i][j] = taskMatrix[i][j] + minOf(temp[i - 1][j - 1], temp[i - 1][j], temp[i][j - 1])
+        }
+    }
+
+    return temp[m][n]
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
