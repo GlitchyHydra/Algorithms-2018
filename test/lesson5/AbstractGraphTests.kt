@@ -24,7 +24,8 @@ abstract class AbstractGraphTests {
         for (i in 0 until size - 1) {
             assertTrue(this[i].isNeighbour(this[i + 1]), "Edges ${this[i]} & ${this[i + 1]} are not incident")
         }
-        //вылетает здесь если пустой лист на проверку смежности
+        //IndexOutOfBoundsException if list is empty
+        //add return after assertion if Euler loop should not exist
         assertTrue(this[0].isNeighbour(this[size - 1]), "Edges ${this[0]} & ${this[size - 1]} are not incident")
     }
 
