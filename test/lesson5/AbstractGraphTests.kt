@@ -16,6 +16,7 @@ abstract class AbstractGraphTests {
             assertEquals(edges.size, size, "Euler loop should traverse all edges")
         } else {
             assertTrue(isEmpty(), "Euler loop should not exist")
+            return
         }
         for (edge in this) {
             assertTrue(edge in edges, "Edge $edge is not inside graph")
@@ -23,6 +24,7 @@ abstract class AbstractGraphTests {
         for (i in 0 until size - 1) {
             assertTrue(this[i].isNeighbour(this[i + 1]), "Edges ${this[i]} & ${this[i + 1]} are not incident")
         }
+        //вылетает здесь если пустой лист на проверку смежности
         assertTrue(this[0].isNeighbour(this[size - 1]), "Edges ${this[0]} & ${this[size - 1]} are not incident")
     }
 
@@ -65,6 +67,49 @@ abstract class AbstractGraphTests {
         }.build()
         val loop2 = graph2.findEulerLoop()
         loop2.assert(true, graph2)
+        val graph3 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val k = addVertex("K")
+            val q = addVertex("Q")
+            val l = addVertex("L")
+            val t = addVertex("T")
+            val n = addVertex("N")
+            val p = addVertex("P")
+            val r = addVertex("R")
+            addConnection(a, b)
+            addConnection(a, d)
+            addConnection(d, g)
+            addConnection(g, q)
+            addConnection(q, e)
+            addConnection(e, t)
+            addConnection(t, b)
+            addConnection(n, p)
+            addConnection(p, r)
+            addConnection(r, g)
+            addConnection(n, l)
+            addConnection(l, k)
+            addConnection(k, f)
+            addConnection(f, g)
+        }.build()
+        val loop3 = graph3.findEulerLoop()
+        loop3.assert(true, graph3)
+        //не существует эйлерового цикла
+        val graph4 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            addConnection(a, b)
+            addConnection(b, d)
+            addConnection(d, e)
+        }.build()
+        val loop4 = graph4.findEulerLoop()
+        loop4.assert(false, graph4)
     }
 
     fun minimumSpanningTree(minimumSpanningTree: Graph.() -> Graph) {
@@ -108,6 +153,38 @@ abstract class AbstractGraphTests {
         val tree2 = graph2.minimumSpanningTree()
         assertEquals(10, tree2.edges.size)
         assertEquals(10, tree2.findBridges().size)
+        val graph3 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val k = addVertex("K")
+            val q = addVertex("Q")
+            val l = addVertex("L")
+            val t = addVertex("T")
+            val n = addVertex("N")
+            val p = addVertex("P")
+            val r = addVertex("R")
+            addConnection(a, b)
+            addConnection(a, d)
+            addConnection(d, g)
+            addConnection(g, q)
+            addConnection(q, e)
+            addConnection(e, t)
+            addConnection(t, b)
+            addConnection(n, p)
+            addConnection(p, r)
+            addConnection(r, g)
+            addConnection(n, l)
+            addConnection(l, k)
+            addConnection(k, f)
+            addConnection(f, g)
+        }.build()
+        val tree3 = graph3.minimumSpanningTree()
+        assertEquals(12, tree3.edges.size)
+        assertEquals(12, tree3.findBridges().size)
     }
 
     fun largestIndependentVertexSet(largestIndependentVertexSet: Graph.() -> Set<Graph.Vertex>) {
