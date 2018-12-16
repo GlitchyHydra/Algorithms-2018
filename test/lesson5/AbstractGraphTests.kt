@@ -81,13 +81,14 @@ abstract class AbstractGraphTests {
             val n = addVertex("N")
             val p = addVertex("P")
             val r = addVertex("R")
+            val j = addVertex("J")
+            val i = addVertex("I")
             addConnection(a, b)
             addConnection(a, d)
             addConnection(d, g)
             addConnection(g, q)
             addConnection(q, e)
             addConnection(e, t)
-            addConnection(t, b)
             addConnection(n, p)
             addConnection(p, r)
             addConnection(r, g)
@@ -95,6 +96,9 @@ abstract class AbstractGraphTests {
             addConnection(l, k)
             addConnection(k, f)
             addConnection(f, g)
+            addConnection(t, i)
+            addConnection(i, j)
+            addConnection(j, b)
         }.build()
         val loop3 = graph3.findEulerLoop()
         loop3.assert(true, graph3)
@@ -153,6 +157,37 @@ abstract class AbstractGraphTests {
         val tree2 = graph2.minimumSpanningTree()
         assertEquals(10, tree2.edges.size)
         assertEquals(10, tree2.findBridges().size)
+        /**
+         * graph
+         *        A------B
+         *        |      |
+         *        D      |
+         *        |      |
+         *  E--Q--G--F   |
+         *  |     |  |   |
+         *  |     R  |   |
+         *  |     |  |   |
+         *  T     P  K   |
+         *  |     |  |   |
+         *  |     N--L   |
+         *  |            |
+         *  I------------J
+         *
+         *  MST
+         *        A------B
+         *        |
+         *        D
+         *        |
+         *  E--Q--G--F
+         *  |     |  |
+         *  |     R  |
+         *  |     |  |
+         *  T     P  K
+         *  |     |  |
+         *  |     N  L
+         *  |
+         *  I------------J
+         */
         val graph3 = GraphBuilder().apply {
             val a = addVertex("A")
             val b = addVertex("B")
@@ -167,13 +202,14 @@ abstract class AbstractGraphTests {
             val n = addVertex("N")
             val p = addVertex("P")
             val r = addVertex("R")
+            val j = addVertex("J")
+            val i = addVertex("I")
             addConnection(a, b)
             addConnection(a, d)
             addConnection(d, g)
             addConnection(g, q)
             addConnection(q, e)
             addConnection(e, t)
-            addConnection(t, b)
             addConnection(n, p)
             addConnection(p, r)
             addConnection(r, g)
@@ -181,10 +217,13 @@ abstract class AbstractGraphTests {
             addConnection(l, k)
             addConnection(k, f)
             addConnection(f, g)
+            addConnection(t, i)
+            addConnection(i, j)
+            addConnection(j, b)
         }.build()
         val tree3 = graph3.minimumSpanningTree()
-        assertEquals(12, tree3.edges.size)
-        assertEquals(12, tree3.findBridges().size)
+        assertEquals(14, tree3.edges.size)
+        assertEquals(14, tree3.findBridges().size)
     }
 
     fun largestIndependentVertexSet(largestIndependentVertexSet: Graph.() -> Set<Graph.Vertex>) {

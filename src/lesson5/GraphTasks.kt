@@ -133,14 +133,11 @@ fun Graph.minimumSpanningTree(): Graph {
         val currentInfo = queue.poll()
         val currentVertex = currentInfo.vertex
         for (vertex in this.getNeighbors(currentVertex)) {
-            val weight = this.getConnection(currentVertex, vertex)?.weight
-            if (weight != null) {
-                val newDistance = info[currentVertex]!!.distance + weight
-                if (info[vertex]!!.distance > newDistance) {
-                    val newInfo = VertexInfo(vertex, newDistance, currentVertex)
-                    queue.add(newInfo)
-                    info[vertex] = newInfo
-                }
+            val newDistance = info[currentVertex]!!.distance
+            if (info[vertex]!!.distance > newDistance) {
+                val newInfo = VertexInfo(vertex, newDistance, currentVertex)
+                queue.add(newInfo)
+                info[vertex] = newInfo
             }
         }
     }
